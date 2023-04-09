@@ -1,18 +1,25 @@
+import axios from "axios";
 import React, { useState } from "react";
 
 const Hero = () => {
-  const [rollno, setRollno] = useState("");
-  const [name, setName] = useState("");
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setcheckOut] = useState("");
-  const [myArray, setMyArray] = useState([]);
-  // eslint-disable-next-line
-  const [FinalArray, setFinalArray] = useState([]);
+  const [finalData, setFinalData] = useState([]);
+  const [uniqueValues, setUniqueValues] = useState([]);
 
-  const table = () => {
-    const table = JSON.stringify(localStorage.getItem("Records"));
-    console.log(table);
+  const [userData, setUserData] = useState({
+    name: "",
+    rollNumber: "",
+    time: "",
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    finalData.push(userData);
+    axios
+      .post("http://localhost:8080/data", userData)
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
   };
+
   return (
     <div data-theme="night">
       <div className="App flex flex-col lg:flex-row lg:mt-20 justify-center items-center gap-10">
@@ -23,22 +30,7 @@ const Hero = () => {
               <form
                 action=""
                 className="flex flex-col gap-5"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  myArray.push(name, checkIn, checkOut, rollno);
-                  console.log("INITIAL", myArray);
-                  FinalArray.splice(1, 0, myArray);
-                  setMyArray([]);
-                  alert("Data Entered Succefully");
-                  setName("");
-                  setRollno("");
-                  setCheckIn("");
-                  setcheckOut("");
-                  setFinalArray(FinalArray);
-                  console.log("FINAL", FinalArray);
-                  localStorage.setItem("records", JSON.stringify(FinalArray));
-                  table();
-                }}
+                onSubmit={handleSubmit}
               >
                 <div>
                   <label className="label">
@@ -48,9 +40,9 @@ const Hero = () => {
                     className="input input-bordered input-accent w-full max-w-xs"
                     placeholder="Type Here"
                     type="text"
-                    value={name}
+                    value={userData.name}
                     onChange={(e) => {
-                      setName(e.target.value);
+                      setUserData({ ...userData, name: e.target.value });
                     }}
                   />
                 </div>
@@ -62,9 +54,25 @@ const Hero = () => {
                     className="input input-bordered input-accent w-full max-w-xs"
                     placeholder="Type Here"
                     type="number"
-                    value={rollno}
+                    value={userData.rollNumber}
                     onChange={(e) => {
-                      setRollno(e.target.value);
+                      if (finalData.length === 0) {
+                        setUserData({
+                          ...userData,
+                          rollNumber: e.target.value,
+                        });
+                      } else {
+                        finalData.map((data) => {
+                          if (data.rollNumber !== e.target.value) {
+                            setUserData({
+                              ...userData,
+                              rollNumber: e.target.value,
+                            });
+                          } else {
+                            alert("d");
+                          }
+                        });
+                      }
                     }}
                   />
                 </div>
@@ -77,26 +85,13 @@ const Hero = () => {
                     className="input input-bordered input-accent w-full max-w-xs"
                     type="time"
                     placeholder="Check-in Time"
-                    value={checkIn}
+                    value={userData.time}
                     onChange={(e) => {
-                      setCheckIn(e.target.value);
+                      setUserData({ ...userData, time: e.target.value });
                     }}
                   />
                 </div>
-                <div>
-                  <label className="label">
-                    <span className="label-text">Check Out Time</span>
-                  </label>
-                  <input
-                    className="input input-bordered input-accent w-full max-w-xs"
-                    type="time"
-                    placeholder="Check-out Time"
-                    value={checkOut}
-                    onChange={(e) => {
-                      setcheckOut(e.target.value);
-                    }}
-                  />
-                </div>
+
                 <button type="submit" className="btn btn-primary">
                   {" "}
                   SUBMIT
@@ -116,18 +111,16 @@ const Hero = () => {
                   <th>Name</th>
                   <th>RollNo.</th>
                   <th>CheckIn</th>
-                  <th>CheckOut</th>
                 </tr>
               </thead>
-              {FinalArray.map((record) => {
+              {finalData.map((record) => {
                 return (
                   <tbody>
                     <tr className="mb-2">
                       <th></th>
-                      <td>{record[0]}</td>
-                      <td>{record[3]}</td>
-                      <td>{record[2]}</td>
-                      <td>{record[1]}</td>
+                      <td>{record.name}</td>
+                      <td>{record.rollNumber}</td>
+                      <td>{record.time}</td>
                     </tr>
                   </tbody>
                 );
@@ -137,14 +130,14 @@ const Hero = () => {
           <button
             className="btn btn-primary"
             onClick={() => {
-              setFinalArray([]);
+              setFinalData([]);
               window.location.reload();
             }}
           >
             CLEAR TABLE
           </button>
           <p className="text-xl text-center">
-            Total No. Of Students {FinalArray.length}
+            Total No. Of Students {finalData.length}
           </p>
         </div>
       </div>
