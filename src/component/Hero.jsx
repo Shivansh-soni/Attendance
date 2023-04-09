@@ -3,7 +3,6 @@ import React, { useState } from "react";
 
 const Hero = () => {
   const [finalData, setFinalData] = useState([]);
-  const [uniqueValues, setUniqueValues] = useState([]);
 
   const [userData, setUserData] = useState({
     name: "",
@@ -68,9 +67,11 @@ const Hero = () => {
                               ...userData,
                               rollNumber: e.target.value,
                             });
+                            return 0;
                           } else {
                             alert("d");
                           }
+                          return 0;
                         });
                       }
                     }}
